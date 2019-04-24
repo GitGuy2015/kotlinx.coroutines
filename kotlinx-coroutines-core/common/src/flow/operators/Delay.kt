@@ -65,12 +65,7 @@ public fun <T> Flow<T>.debounce(timeoutMillis: Long): Flow<T> {
             val values = Channel<Any?>(Channel.CONFLATED) // Actually Any, KT-30796
             // Channel is not closed deliberately as there is no close with value
             val collector = launch {
-                try {
-                    collect { value -> values.send(value ?: NullSurrogate) }
-                } catch (e: Throwable) {
-                    values.close(e) // Workaround for #1130
-                    throw e
-                }
+                collect { value -> values.send(value ?: NullSurrogate) }
             }
 
             var isDone = false
