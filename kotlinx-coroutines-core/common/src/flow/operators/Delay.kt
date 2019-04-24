@@ -64,7 +64,7 @@ public fun <T> Flow<T>.debounce(timeoutMillis: Long): Flow<T> {
         coroutineScope {
             val values = Channel<Any?>(Channel.CONFLATED) // Actually Any, KT-30796
             // Channel is not closed deliberately as there is no close with value
-            val collector = launch {
+            val collector = async {
                 collect { value -> values.send(value ?: NullSurrogate) }
             }
 
@@ -84,7 +84,7 @@ public fun <T> Flow<T>.debounce(timeoutMillis: Long): Flow<T> {
                     }
 
                     // Close with value 'idiom'
-                    collector.onJoin {
+                    collector.onAwait {
                         if (lastValue != null) emit(NullSurrogate.unbox(lastValue))
                         isDone = true
                     }
